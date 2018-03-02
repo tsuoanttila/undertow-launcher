@@ -1,0 +1,6 @@
+target/
+error-screenshots/
+.classpath
+.project
+.settings/
+.DS_Store
