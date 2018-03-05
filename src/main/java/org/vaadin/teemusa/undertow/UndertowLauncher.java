@@ -5,11 +5,17 @@ import java.util.logging.Logger;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.UI;
 
+/**
+ * Class for launching Undertow servlet container for simple application
+ * deployment.
+ * 
+ * @see UndertowServer
+ */
 public class UndertowLauncher implements Runnable {
 
     private final UndertowServer server;
 
-    public UndertowLauncher(UndertowServer server) {
+    protected UndertowLauncher(UndertowServer server) {
         this.server = server;
     }
 

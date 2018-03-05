@@ -15,6 +15,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 import org.vaadin.teemusa.DemoUI;
+import org.vaadin.teemusa.undertow.UndertowRule;
 import org.vaadin.teemusa.undertow.UndertowServer;
 
 import com.vaadin.testbench.annotations.RunLocally;
@@ -29,14 +30,14 @@ public class ServerInstancePerMethodTest extends ParallelTest {
     private static ConcurrentHashMap<String, UndertowServer> usedServers = new ConcurrentHashMap<>();
 
     @Rule
-    public UndertowServer server = UndertowServer.withUI(DemoUI.class);
+    public UndertowRule serverRule = UndertowRule.withUI(DemoUI.class);
 
     @Rule
     public TestName testName = new TestName();
 
     @Test
     public void testSingleClick() throws IOException {
-        getDriver().get(server.getBaseURL());
+        getDriver().get(serverRule.getServer().getBaseURL());
         assertThat($(LabelElement.class).id("counter").getText(), is("0"));
         $(ButtonElement.class).first().click();
         assertThat($(LabelElement.class).id("counter").getText(), is("1"));
@@ -44,7 +45,7 @@ public class ServerInstancePerMethodTest extends ParallelTest {
 
     @Test
     public void testFiveClicks() throws IOException {
-        getDriver().get(server.getBaseURL());
+        getDriver().get(serverRule.getServer().getBaseURL());
         assertThat($(LabelElement.class).id("counter").getText(), is("0"));
         IntStream.range(0, 5)
                 .forEach(i -> $(ButtonElement.class).first().click());
@@ -55,7 +56,7 @@ public class ServerInstancePerMethodTest extends ParallelTest {
     public void tearDown() {
         assertThat(usedServers.containsKey(testName.getMethodName()),
                 is(false));
-        usedServers.put(testName.getMethodName(), server);
+        usedServers.put(testName.getMethodName(), serverRule.getServer());
     }
 
     @AfterClass

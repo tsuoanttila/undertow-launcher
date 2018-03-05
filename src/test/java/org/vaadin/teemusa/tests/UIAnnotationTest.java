@@ -10,6 +10,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.vaadin.teemusa.DemoUI;
 import org.vaadin.teemusa.undertow.TestUI;
+import org.vaadin.teemusa.undertow.UndertowRule;
 import org.vaadin.teemusa.undertow.UndertowServer;
 
 import com.vaadin.testbench.annotations.RunLocally;
@@ -23,11 +24,11 @@ import com.vaadin.testbench.parallel.ParallelTest;
 public class UIAnnotationTest extends ParallelTest {
 
     @ClassRule
-    public static UndertowServer server = UndertowServer.create();
+    public static UndertowRule serverRule = UndertowRule.create();
 
     @Test
     public void testSingleClick() throws IOException {
-        getDriver().get(server.getBaseURL());
+        getDriver().get(serverRule.getServer().getBaseURL());
         assertThat($(LabelElement.class).id("counter").getText(), is("0"));
         $(ButtonElement.class).first().click();
         assertThat($(LabelElement.class).id("counter").getText(), is("1"));
@@ -35,7 +36,7 @@ public class UIAnnotationTest extends ParallelTest {
 
     @Test
     public void testFiveClicks() throws IOException {
-        getDriver().get(server.getBaseURL());
+        getDriver().get(serverRule.getServer().getBaseURL());
         assertThat($(LabelElement.class).id("counter").getText(), is("0"));
         IntStream.range(0, 5)
                 .forEach(i -> $(ButtonElement.class).first().click());

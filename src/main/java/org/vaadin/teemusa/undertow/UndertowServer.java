@@ -4,12 +4,6 @@ import java.util.Optional;
 
 import javax.servlet.annotation.WebServlet;
 
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.rules.ExternalResource;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
-
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.UI;
 
@@ -23,20 +17,15 @@ import io.undertow.servlet.api.DeploymentManager;
 import io.undertow.servlet.api.ServletInfo;
 
 /**
- * Test rule for spining up Undertow servlet containers for tests. Used with
- * {@link ClassRule} to run one instance per test class, or {@link Rule} to run
- * one instance per test method.
- * 
- * @see TestServlet
- * @see TestUI
+ * Class for spining up Undertow servlet containers.
  */
-public class UndertowServer extends ExternalResource {
+public class UndertowServer {
 
-    private Undertow undertowServer;
+    private Undertow serverInstance;
     private int port;
     private String serverAddress;
 
-    public UndertowServer() {
+    protected UndertowServer() {
     }
 
     protected void initUI(Class<? extends UI> uiClass) {
@@ -49,7 +38,7 @@ public class UndertowServer extends ExternalResource {
                 .addInitParam("ui", uiClass.getCanonicalName())
                 .addMappings("/*");
 
-        init(servlet, port);
+        init(servlet, uiClass.getClassLoader(), port);
     }
 
     protected void initServlet(Class<? extends VaadinServlet> servletClass) {
@@ -62,16 +51,19 @@ public class UndertowServer extends ExternalResource {
                 WebServlet.class) : "No WebServlet annotation present.";
 
         WebServlet webServlet = servletClass.getAnnotation(WebServlet.class);
+
         ServletInfo servlet = Servlets
                 .servlet(servletClass.getSimpleName(), servletClass)
-                .addMappings(webServlet.value());
+                .addMappings(webServlet.value())
+                .addMappings(webServlet.urlPatterns());
 
-        init(servlet, port);
+        init(servlet, servletClass.getClassLoader(), port);
     }
 
-    protected void init(ServletInfo servlet, int port) {
+    protected void init(ServletInfo servlet, ClassLoader classLoader,
+            int port) {
         DeploymentInfo servletBuilder = Servlets.deployment()
-                .setClassLoader(getClass().getClassLoader()).setContextPath("/")
+                .setClassLoader(classLoader).setContextPath("/")
                 .setDeploymentName("ROOT.war").setDefaultEncoding("UTF-8")
                 .addServlets(servlet);
 
@@ -86,24 +78,33 @@ public class UndertowServer extends ExternalResource {
                     .addPrefixPath("/", httpHandler);
 
             this.port = port;
-            undertowServer = Undertow.builder().addHttpListener(port, "0.0.0.0")
+            serverInstance = Undertow.builder().addHttpListener(port, "0.0.0.0")
                     .setHandler(path).build();
 
-            undertowServer.getListenerInfo().forEach(System.out::println);
+            serverInstance.getListenerInfo().forEach(System.out::println);
         } catch (Exception e) {
         }
     }
 
-    void start() {
+    /**
+     * Returns whether the UndertowServer has been initialized.
+     * 
+     * @return {@code true} if initialized; {@code false} if not
+     */
+    public boolean isInitialized() {
+        return serverInstance != null;
+    }
+
+    protected void start() {
         if (serverAddress == null) {
             // Find out the address where the browser can access the server.
             serverAddress = NetworkUtil.getDeploymentHostname();
         }
-        Optional.ofNullable(undertowServer).ifPresent(e -> e.start());
+        Optional.ofNullable(serverInstance).ifPresent(e -> e.start());
     }
 
-    void stop() {
-        Optional.ofNullable(undertowServer).ifPresent(e -> e.stop());
+    protected void stop() {
+        Optional.ofNullable(serverInstance).ifPresent(e -> e.stop());
     }
 
     /**
@@ -124,34 +125,6 @@ public class UndertowServer extends ExternalResource {
         return "http://" + serverAddress + ":" + getPort() + "/";
     }
 
-    @Override
-    public Statement apply(Statement base, Description description) {
-        // Determine the servlet
-        Class<?> cls = description.getTestClass();
-        if (undertowServer == null) {
-            if (cls.isAnnotationPresent(TestServlet.class)) {
-                initServlet(cls.getAnnotation(TestServlet.class).value());
-            } else if (cls.isAnnotationPresent(TestUI.class)) {
-                initUI(cls.getAnnotation(TestUI.class).value());
-            } else {
-                throw new IllegalStateException(
-                        "Cannot start Undertow server. Missing @TestServlet annotation");
-            }
-        }
-
-        return super.apply(base, description);
-    }
-
-    @Override
-    protected void before() throws Throwable {
-        start();
-    }
-
-    @Override
-    protected void after() {
-        stop();
-    }
-
     /**
      * Creates a new undertow server for given Servlet using random port.
      * 
@@ -159,7 +132,7 @@ public class UndertowServer extends ExternalResource {
      *            the servlet to deploy
      * @return the undertow server
      */
-    public static UndertowServer withServlet(
+    protected static UndertowServer withServlet(
             Class<? extends VaadinServlet> servletClass) {
         return withServlet(servletClass, NetworkUtil.getRandomPort());
     }
@@ -173,7 +146,7 @@ public class UndertowServer extends ExternalResource {
      *            the port to use
      * @return the undertow server
      */
-    public static UndertowServer withServlet(
+    protected static UndertowServer withServlet(
             Class<? extends VaadinServlet> servletClass, int port) {
         UndertowServer server = new UndertowServer();
         server.initServlet(servletClass, port);
@@ -187,7 +160,7 @@ public class UndertowServer extends ExternalResource {
      *            the ui to deploy
      * @return the undertow server
      */
-    public static UndertowServer withUI(Class<? extends UI> uiClass) {
+    protected static UndertowServer withUI(Class<? extends UI> uiClass) {
         return withUI(uiClass, NetworkUtil.getRandomPort());
     }
 
@@ -200,20 +173,10 @@ public class UndertowServer extends ExternalResource {
      *            the port to use
      * @return the undertow server
      */
-    public static UndertowServer withUI(Class<? extends UI> uiClass, int port) {
+    protected static UndertowServer withUI(Class<? extends UI> uiClass,
+            int port) {
         UndertowServer server = new UndertowServer();
         server.initUI(uiClass, port);
         return server;
-    }
-
-    /**
-     * Creates a new undertow server without configuring any UI or Servlet.
-     * Should be used as a {@link ClassRule} accompanied with
-     * {@link TestServlet} or {@link TestUI}.
-     * 
-     * @return the undertow server
-     */
-    public static UndertowServer create() {
-        return new UndertowServer();
     }
 }
