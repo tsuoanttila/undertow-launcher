@@ -36,7 +36,7 @@ public class UndertowServer {
         ServletInfo servlet = Servlets
                 .servlet(uiClass.getSimpleName(), VaadinServlet.class)
                 .addInitParam("ui", uiClass.getCanonicalName())
-                .addMappings("/*");
+                .addMappings("/*").setAsyncSupported(true);
 
         init(servlet, uiClass.getClassLoader(), port);
     }
@@ -55,7 +55,7 @@ public class UndertowServer {
         ServletInfo servlet = Servlets
                 .servlet(servletClass.getSimpleName(), servletClass)
                 .addMappings(webServlet.value())
-                .addMappings(webServlet.urlPatterns());
+                .addMappings(webServlet.urlPatterns()).setAsyncSupported(true);
 
         init(servlet, servletClass.getClassLoader(), port);
     }
