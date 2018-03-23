@@ -21,9 +21,18 @@ public class UndertowLauncher implements Runnable {
 
     @Override
     public void run() {
-        server.start();
+        getServer().start();
         Logger.getLogger(UndertowLauncher.class.getSimpleName())
-                .info("Server started at " + server.getBaseURL());
+                .info("Server started at " + getServer().getBaseURL());
+    }
+
+    /**
+     * Gets the server instance for this UndertowLauncher.
+     * 
+     * @return the undertow server
+     */
+    public UndertowServer getServer() {
+        return server;
     }
 
     /**
