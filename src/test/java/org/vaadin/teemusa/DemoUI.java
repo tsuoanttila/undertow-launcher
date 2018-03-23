@@ -2,8 +2,9 @@ package org.vaadin.teemusa;
 
 import javax.servlet.annotation.WebServlet;
 
+import org.vaadin.teemusa.undertow.UndertowLauncher;
+
 import com.vaadin.annotations.VaadinServletConfiguration;
-import com.vaadin.annotations.Widgetset;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.Button;
@@ -25,15 +26,16 @@ public class DemoUI extends UI {
                         e -> counter.setValue("" + (++clickCounter))),
                 new Label("Click Counter:"), counter);
 
-        layout.addComponent(new Button("INTERRUPT!", e -> {
-            System.err.println("Foo!");
-        }));
-
         setContent(layout);
     }
 
     @WebServlet(value = "/*", asyncSupported = true)
     @VaadinServletConfiguration(productionMode = false, ui = DemoUI.class)
     public static class Servlet extends VaadinServlet {
+    }
+
+    public static void main(String[] args) {
+        // Set up server with UI and run in default port 8080
+        UndertowLauncher.withUI(DemoUI.class).run();
     }
 }
