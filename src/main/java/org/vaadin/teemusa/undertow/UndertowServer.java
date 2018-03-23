@@ -17,7 +17,7 @@ import io.undertow.servlet.api.DeploymentManager;
 import io.undertow.servlet.api.ServletInfo;
 
 /**
- * Class for spining up Undertow servlet containers.
+ * Class for spinning up Undertow servlet containers.
  */
 public class UndertowServer {
 
@@ -28,10 +28,24 @@ public class UndertowServer {
     protected UndertowServer() {
     }
 
+    /**
+     * Initializes the UndertowServer with given {@link UI} using random port.
+     * 
+     * @param uiClass
+     *            the UI to deploy
+     */
     protected void initUI(Class<? extends UI> uiClass) {
         initUI(uiClass, NetworkUtil.getRandomPort());
     }
 
+    /**
+     * Initializes the UndertowServer with given {@link UI} and port.
+     * 
+     * @param uiClass
+     *            the UI to deploy
+     * @param port
+     *            the port to use
+     */
     protected void initUI(Class<? extends UI> uiClass, int port) {
         ServletInfo servlet = Servlets
                 .servlet(uiClass.getSimpleName(), VaadinServlet.class)
@@ -41,10 +55,25 @@ public class UndertowServer {
         init(servlet, uiClass.getClassLoader(), port);
     }
 
+    /**
+     * Initializes the UndertowServer with given {@link VaadinServlet} using
+     * random port.
+     * 
+     * @param servletClass
+     *            the VaadinServlet to deploy
+     */
     protected void initServlet(Class<? extends VaadinServlet> servletClass) {
         initServlet(servletClass, NetworkUtil.getRandomPort());
     }
 
+    /**
+     * Initializes the UndertowServer with given {@link VaadinServlet} and port.
+     * 
+     * @param servletClass
+     *            the VaadinServlet to deploy
+     * @param port
+     *            the port to use
+     */
     protected void initServlet(Class<? extends VaadinServlet> servletClass,
             int port) {
         assert servletClass.isAnnotationPresent(
@@ -60,6 +89,16 @@ public class UndertowServer {
         init(servlet, servletClass.getClassLoader(), port);
     }
 
+    /**
+     * Initializes the UndertowServer.
+     * 
+     * @param servlet
+     *            the defined servlet
+     * @param classLoader
+     *            the classloader to use
+     * @param port
+     *            the port to use
+     */
     protected void init(ServletInfo servlet, ClassLoader classLoader,
             int port) {
         DeploymentInfo servletBuilder = Servlets.deployment()
@@ -95,6 +134,9 @@ public class UndertowServer {
         return serverInstance != null;
     }
 
+    /**
+     * Starts the server.
+     */
     protected void start() {
         if (serverAddress == null) {
             // Find out the address where the browser can access the server.
@@ -103,6 +145,9 @@ public class UndertowServer {
         Optional.ofNullable(serverInstance).ifPresent(e -> e.start());
     }
 
+    /**
+     * Stops the server.
+     */
     protected void stop() {
         Optional.ofNullable(serverInstance).ifPresent(e -> e.stop());
     }
@@ -126,7 +171,8 @@ public class UndertowServer {
     }
 
     /**
-     * Creates a new undertow server for given Servlet using random port.
+     * Creates a new {@link UndertowServer} for given {@link VaadinServlet}
+     * using random port.
      * 
      * @param servletClass
      *            the servlet to deploy
@@ -138,7 +184,8 @@ public class UndertowServer {
     }
 
     /**
-     * Creates a new undertow server for given Servlet using given port.
+     * Creates a new {@link UndertowServer} for given {@link VaadinServlet}
+     * using given port.
      * 
      * @param servletClass
      *            the servlet to deploy
@@ -154,7 +201,8 @@ public class UndertowServer {
     }
 
     /**
-     * Creates a new undertow server for given UI using random port.
+     * Creates a new {@link UndertowServer} for given {@link UI} using random
+     * port.
      * 
      * @param uiClass
      *            the ui to deploy
@@ -165,7 +213,8 @@ public class UndertowServer {
     }
 
     /**
-     * Creates a new undertow server for given UI using given port.
+     * Creates a new {@link UndertowServer} for given {@link UI} using given
+     * port.
      * 
      * @param uiClass
      *            the ui to deploy

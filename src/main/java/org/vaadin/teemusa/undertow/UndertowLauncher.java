@@ -29,14 +29,15 @@ public class UndertowLauncher implements Runnable {
     /**
      * Gets the server instance for this UndertowLauncher.
      * 
-     * @return the undertow server
+     * @return the undertow server instance
      */
     public UndertowServer getServer() {
         return server;
     }
 
     /**
-     * Returns a Undertow launcher using the given ui with default port 8080.
+     * Returns a new {@link UndertowLauncher} using the given {@link UI} with
+     * default port 8080.
      * 
      * @param uiClass
      *            the ui to run
@@ -47,7 +48,8 @@ public class UndertowLauncher implements Runnable {
     }
 
     /**
-     * Returns a Undertow launcher using the given ui with given port.
+     * Returns a new {@link UndertowLauncher} using the given {@link UI} with
+     * given port.
      * 
      * @param uiClass
      *            the ui to run
@@ -61,11 +63,11 @@ public class UndertowLauncher implements Runnable {
     }
 
     /**
-     * Returns a Undertow launcher using the given servlet with default port
-     * 8080.
+     * Returns a new {@link UndertowLauncher} using the given
+     * {@link VaadinServlet} with default port 8080.
      * 
      * @param servletClass
-     *            the servlet to run
+     *            the VaadinServlet to run
      * @return launcher
      */
     public static UndertowLauncher withServlet(
@@ -74,10 +76,11 @@ public class UndertowLauncher implements Runnable {
     }
 
     /**
-     * Returns a Undertow launcher using the given servlet with given port.
+     * Returns a new {@link UndertowLauncher} using the given
+     * {@link VaadinServlet} with given port.
      * 
      * @param servletClass
-     *            the servlet to run
+     *            the VaadinServlet to run
      * @param port
      *            the port to use
      * @return launcher

@@ -10,7 +10,7 @@ import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.UI;
 
 /**
- * Test rule for spining up Undertow servlet containers for tests. Used with
+ * Test rule for spinning up Undertow servlet containers for tests. Used with
  * {@link ClassRule} to run one instance per test class, or {@link Rule} to run
  * one instance per test method.
  * 
