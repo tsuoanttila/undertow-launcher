@@ -4,7 +4,7 @@ Undertow Launcher is an utility to help developers run and test their UIs.
 
 ## Download release
 
-Official releases of this add-on are available at Vaadin Directory. For Maven instructions, download and reviews, go to http://vaadin.com/addon/undertow-launcher
+Official releases of this add-on are available at Vaadin Directory. For Maven instructions, download and reviews, go to https://vaadin.com/directory/component/undertow-launcher-for-vaadin
 
 ## Building
 
